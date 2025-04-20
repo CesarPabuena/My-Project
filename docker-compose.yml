@@ -1,0 +1,55 @@
+services:
+  gym:
+    container_name: gym
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./gym/.env 
+    ports:
+      - "8080:8080" #puerto de windows : puerto de contenedor
+    volumes:
+      - ./gym:/app #carpeta que tiene windows
+    depends_on:
+      - db #dependiente del servicio  
+
+    restart: always
+
+    networks:
+      - api-naowee-suite
+    
+  db:
+    image: docker.io/bitnami/postgresql:15 #buscar la imagen en Docker Hub
+    container_name: db
+    ports:
+      - 5432:5432 #puerto que maneja Postgre
+    env_file:
+      - ./gym/.env
+    volumes:
+      - .db:/var/postgre2
+    networks:
+      - api-naowee-suite
+
+  users:
+    container_name: users
+    build:
+      context: .
+      dockerfile: Dockerfile_u
+    env_file:
+      - ./users/.env 
+    ports:
+      - "8081:8081" #puerto de windows : puerto de contenedor
+    volumes:
+      - ./users:/app #carpeta que tiene windows
+    depends_on:
+      - db #dependiente del servicio  
+
+    restart: always
+
+    networks:
+      - api-naowee-suite
+
+
+networks:
+  api-naowee-suite:
+    driver: bridge
